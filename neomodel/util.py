@@ -159,8 +159,9 @@ class Database(local, NodeClassRegistry):
         """
         if self._active_transaction:
             raise SystemError("Transaction in progress")
+
         self._active_transaction = self.driver.session(
-            access_mode=access_mode
+            default_access_mode=access_mode
         ).begin_transaction()
 
     @ensure_connection
@@ -312,7 +313,7 @@ class TransactionProxy(object):
 
     @ensure_connection
     def __enter__(self):
-        self.db.begin(access_mode=self.access_mode)
+        self.db.begin()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
