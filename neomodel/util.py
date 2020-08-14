@@ -92,6 +92,10 @@ class Database(local, NodeClassRegistry):
         self.driver = None
         self._pid = None
 
+    def __exit__(self, exc_type, exc_value, traceback):
+        if self.driver is not None:
+            self.driver.close()
+
     def set_connection(self, url):
         """
         Sets the connection URL to the address a Neo4j server is set up at
