@@ -127,8 +127,9 @@ def install_labels(cls, quiet=True, stdout=None):
                     "CREATE INDEX on :{0}({1}); ".format(cls.__label__, db_property)
                 )
             except ClientError as e:
-                if str(e).lower().startswith("an equivalent index already exists"):
-                    stdout.write("{0}\n".format(str(e)))
+                if str(e).lower().contains("an equivalent index already exists"):
+                    if not quiet:
+                        stdout.write("{0}\n".format(str(e)))
                 else:
                     raise
 
@@ -147,8 +148,9 @@ def install_labels(cls, quiet=True, stdout=None):
                     )
                 )
             except ClientError as e:
-                if str(e).lower().startswith("an equivalent constraint already exists"):
-                    stdout.write("{0}\n".format(str(e)))
+                if str(e).lower().contains("an equivalent constraint already exists"):
+                    if not quiet:
+                        stdout.write("{0}\n".format(str(e)))
                 else:
                     raise
 
