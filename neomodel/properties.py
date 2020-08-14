@@ -6,6 +6,7 @@ import re
 import uuid
 import warnings
 from datetime import date, datetime
+from neo4j import time
 
 import pytz
 
@@ -517,19 +518,22 @@ class DateTimeProperty(Property):
 
     @validator
     def inflate(self, value):
-        try:
-            epoch = float(value)
-        except ValueError:
-            raise ValueError(
-                "Float or integer expected, got {0} can't inflate to "
-                "datetime.".format(type(value))
-            )
-        except TypeError:
-            raise TypeError(
-                "Float or integer expected. Can't inflate {0} to datetime.".format(
-                    type(value)
+        if isinstance(value, time.DateTime):
+            return value.to_native()
+        else:
+            try:
+                epoch = float(value)
+            except ValueError:
+                raise ValueError(
+                    "Float or integer expected, got {0} can't inflate to "
+                    "datetime.".format(type(value))
                 )
-            )
+            except TypeError:
+                raise TypeError(
+                    "Float or integer expected. Can't inflate {0} to datetime.".format(
+                        type(value)
+                    )
+                )
         return datetime.utcfromtimestamp(epoch).replace(tzinfo=pytz.utc)
 
     @validator
