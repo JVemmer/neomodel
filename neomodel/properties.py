@@ -508,17 +508,18 @@ class DateTimeProperty(Property):
 
     form_field_class = "DateTimeField"
 
-    def __init__(self, default_now=False, **kwargs):
+    def __init__(self, default_now=False, use_native=False, **kwargs):
         if default_now:
             if "default" in kwargs:
                 raise ValueError("too many defaults")
             kwargs["default"] = lambda: datetime.utcnow().replace(tzinfo=pytz.utc)
+        self.use_native = bool(use_native)
 
         super(DateTimeProperty, self).__init__(**kwargs)
 
     @validator
     def inflate(self, value):
-        if isinstance(value, time.DateTime):
+        if self.use_native and isinstance(value, time.DateTime):
             return value.to_native()
         else:
             try:
@@ -540,7 +541,9 @@ class DateTimeProperty(Property):
     def deflate(self, value):
         if not isinstance(value, datetime):
             raise ValueError("datetime object expected, got {0}.".format(type(value)))
-        if value.tzinfo:
+        if self.use_native:
+            return value
+        elif value.tzinfo:
             value = value.astimezone(pytz.utc)
             epoch_date = datetime(1970, 1, 1, tzinfo=pytz.utc)
         elif config.FORCE_TIMEZONE:
