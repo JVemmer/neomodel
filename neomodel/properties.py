@@ -519,8 +519,14 @@ class DateTimeProperty(Property):
 
     @validator
     def inflate(self, value):
-        if self.use_native and isinstance(value, time.DateTime):
-            return value.to_native()
+        if self.use_native:
+            if isinstance(value, time.DateTime):
+                return value.to_native()
+            raise ValueError(
+                "DateTime expected, got {0} can't inflate to datetime.".format(
+                    type(value)
+                )
+            )
         else:
             try:
                 epoch = float(value)
